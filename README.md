@@ -1,1 +1,1 @@
-# mental-bot
+slay
