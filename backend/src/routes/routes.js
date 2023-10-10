@@ -1,8 +1,9 @@
-const bodyParser = require('body-parser');
-const path = require('path');
+import chatController from "../controller/chatController.js"
+import validateUser from "../middlewares/validateUser.js";
+import express from 'express';
 
-const competitionController = require('../controller/competition.controller');
+const router = express.Router();
 
-module.exports = (app, router) => {
-    router.get('/api/competitions', competitionController.processGetAllCompetitions);
-}
+router.post('/api/user/chat', chatController.processChat);
+
+export default router;
