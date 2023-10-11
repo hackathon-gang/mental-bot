@@ -22,6 +22,20 @@ const userService = {
             console.error('Error in postNewUser: ', error);
             throw error;
         }
+    },
+    getUserById: async (uid) => {
+        try {
+            const query = `
+            SELECT * FROM m_user_login WHERE uid = ?;
+            `;
+            const result = await pool.query(query, [uid]);
+            console.log(result[0]);
+            return result[0];
+        }
+        catch (error) {
+            console.error('Error in getUserById: ', error);
+            throw error;
+        }
     }
 };
 
