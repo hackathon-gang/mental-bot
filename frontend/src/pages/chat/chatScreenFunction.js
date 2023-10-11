@@ -49,7 +49,7 @@ const App = () => {
             .get(`${baseUrl}/api/user/${userId}/sessions?dateTime=${sessionDateTime}`)
             .then((response) => {
                 console.log('response: ', response);
-                setSessions(response.data.data);
+                setSessions(response.data.data.reverse());
                 setHasSessions(true);
                 console.log('sessions: ', sessions);
             })
