@@ -87,12 +87,12 @@ const chatService = {
         }
     },
 
-    getChats: async (sessionId, byUser) => {
+    getChats: async (sessionId, userId) => {
         try {
             const query = `
-            SELECT * FROM m_message WHERE sid = ? AND by_user = ? ORDER BY date_time
+            SELECT m.* FROM m_message m, m_session s WHERE m.sid = ? AND s.uid = ? AND m.sid = s.sid ORDER BY m.date_time;
             `;
-            const results = await pool.query(query, [sessionId, byUser]);
+            const results = await pool.query(query, [sessionId, userId]);
             console.log(results[0]);
             return results[0];
         } catch (error) {

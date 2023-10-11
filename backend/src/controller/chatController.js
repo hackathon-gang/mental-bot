@@ -3,13 +3,42 @@ import cbtService from "../services/cbtServices.js";
 
 const chatController = {
 
-    processChat: async (req, res, next) => {
+    processSaveChat: async (req, res, next) => {
         let chatText = req.body.chatText;
-        let uid = req.body.uid;
-        let sid = req.body.sid;
+        let sid = req.params.sessionId;
+        // let byUser = req.params.byUser;
 
         try {
-            const messageId = await chatService.saveChat(sid, chatText, 1);
+            const saveChatResult = await chatService.saveChat(sid, chatText, 1);
+
+            if (saveChatResult) {
+                return res.status(200).json({
+                    statusCode: 200,
+                    ok: true,
+                    message: 'Create chat successful',
+                });
+            } else {
+                return res.status(500).json({
+                    statusCode: 500,
+                    ok: false,
+                    message: 'Failed to create chat',
+                });
+            }
+        }
+        catch (error) {
+            console.error('Error in saveChat: ', error);
+            return next(error);
+        }
+    },
+
+    processChat: async (req, res, next) => {
+        let chatText = req.body.chatText;
+        let uid = req.params.userId;
+        let sid = req.params.sessionId;
+        let messageId = req.params.sessionId;
+
+        try {
+            // const messageId = await chatService.saveChat(sid, chatText, 1);
             const summaryText = await chatService.summarizeChat(chatText);
             const suggestionText = await chatService.giveSuggestions(summaryText);
             const suggestionResult = await chatService.saveChat(sid, suggestionText, 0);
@@ -46,11 +75,11 @@ const chatController = {
     },
 
     processGetChats: async (req, res, next) => {
-        let sid = req.query.sid;
-        let byUser = req.query.byUser;
+        let sid = req.params.sessionId;
+        let uid = req.params.userId;
 
         try {
-            const chats = await chatService.getChats(sid, byUser);
+            const chats = await chatService.getChats(sid, uid);
             if (chats) {
                 console.log('chats: ', chats);
                 const chatData = chats.map((chat) => ({
