@@ -126,6 +126,10 @@ const App = () => {
         paddingBottom: '100%',  // Create a square shape (height equals width)
     };
 
+    const buttonWrapperStyle2 = {
+          
+    };
+
     const LogobuttonStyle = {
         backgroundColor: '#9356F6', // Set the background color
         position: 'absolute',
