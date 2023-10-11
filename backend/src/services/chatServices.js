@@ -30,7 +30,7 @@ const chatService = {
             console.log(chat.choices[0].message.content);
             return chat.choices[0].message.content;
         }
-        catch(error) {
+        catch (error) {
             console.error('Error in summarizeChat: ', error);
             throw error;
         }
@@ -43,12 +43,12 @@ const chatService = {
         try {
             const chat = await openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
-                messages: [{"role": "user", "content": text}]
+                messages: [{ "role": "user", "content": text }]
             });
             console.log(chat.choices[0].message.content);
             return chat.choices[0].message.content;
         }
-        catch(error) {
+        catch (error) {
             console.error('Error in generateCBTAnswers: ', error);
             throw error;
         }
@@ -85,7 +85,22 @@ const chatService = {
             console.error('Error in giveSuggestions: ', error);
             throw error;
         }
-    }
+    },
+
+    getChats: async (sessionId, byUser) => {
+        try {
+            const query = `
+            SELECT * FROM m_message WHERE sid = ? AND by_user = ? ORDER BY date_time
+            `;
+            const results = await pool.query(query, [sessionId, byUser]);
+            console.log(results[0]);
+            return results[0];
+        } catch (error) {
+            console.error('Error in getChats: ', error);
+            throw error;
+        }
+    },
+
 };
 
 export default chatService;
