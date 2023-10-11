@@ -11,5 +11,7 @@ router.get('/api/user/:userId/sessions', sessionController.processGetSessions)
 router.get('/api/user/:userId/:sessionId/chats', chatController.processGetChats);
 router.post('/api/user/:userId/sessions', sessionController.processSaveSession);
 router.get('/api/user/:userId', userController.getUserData);
+router.post('/api/user', userController.processPostNewUser);
+
 
 export default router;

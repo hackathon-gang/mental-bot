@@ -110,6 +110,8 @@ const App = () => {
     // send text by user 
     const handleSend = async (event) => {
         console.log('send button is clicked!');
+        setMessages([...messages, {sid: sessionId, mid: undefined, dateTime: undefined, message: sendTerm, byUser: 1}, {message: '..................'}]);
+        setSendTerm('');
         event.preventDefault();
         const requestBody = {
             sid: sessionId,
@@ -117,17 +119,17 @@ const App = () => {
             by_user: 1
         };
         console.log(requestBody);
-        axios
-            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then((response) => {
-                console.log(response);
-                setSendTerm('');
-                fetchChats();
-            });
+        // axios
+        //     .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //     })
+        //     .then((response) => {
+        //         console.log(response);
+        //         setSendTerm('');
+        //         fetchChats();
+        //     });
     }
 
     // create new session
@@ -458,7 +460,19 @@ const App = () => {
                             <div style={messages.length % 2 === 0 ? grayContentStyle : contentStyle}>
                                 {messages.map((message) => {
                                     let isUser = message.byUser;
-                                    let width = (message.message.length < 150) ? '35%' : '75%';
+                                    let messageLength = message.message.length;
+                                    let customWidth = 0;
+                                    if(messageLength < 15) {
+                                        customWidth = 12;
+                                    }
+                                    else {
+                                        customWidth = (messageLength * 75) / 120;
+                                        if(customWidth > 75) {
+                                            customWidth = 75;
+                                        }
+                                    }
+                                    
+                                    let width = customWidth + "%";
                                     return (
                                         <div key={message.mid} style={messageStyle}>
                                             <div style={{ ...(isUser == 1) ? userchatStyle : aichatStyle, width: width }}>
@@ -474,7 +488,7 @@ const App = () => {
                             <div className='searchComponent' style={writeComponent}>
                                 <input
                                     type="text"
-                                    placeholder="Search..."
+                                    placeholder="Send a message"
                                     value={sendTerm}
                                     onChange={handleSendChange}
                                     style={textInputStyle}
