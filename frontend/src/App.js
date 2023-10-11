@@ -22,7 +22,7 @@ class App extends React.Component {
           <Routes>
 
             <Route exact path="/" element={<HomeScreen />} />
-            <Route path="/chatScreen" element={<ChatScreen />} />
+            <Route path="/chat" element={<ChatScreen />} />
 
             <Route path="*" element={<HomeScreen />} />
           </Routes>
