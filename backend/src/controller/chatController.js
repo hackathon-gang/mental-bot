@@ -1,79 +1,49 @@
 import chatService from "../services/chatServices.js";
+import cbtService from "../services/cbtServices.js";
 
 const chatController = {
 
-    processSaveChat: async (req, res, next) => {
+    processChat: async (req, res, next) => {
         let chatText = req.body.chatText;
-        let sessionId = req.body.sessionId;
-        let byUser = req.body.byUser;
+        let uid = req.body.uid;
+        let sid = req.body.sid;
+
         try {
-            const savedChatData = await chatService.saveChat(
-                sessionId,
-                chatText,
-                byUser
-            );
-            console.log(savedChatData);
+            const messageId = await chatService.saveChat(sid, chatText, 1);
+            const summaryText = await chatService.summarizeChat(chatText);
+            const suggestionText = await chatService.giveSuggestions(summaryText);
+            const suggestionResult = await chatService.saveChat(sid, suggestionText, 0);
+            const summarySaveResult = await chatService.saveSummary(messageId, summaryText);
+            const questionData = await cbtService.getCBTQuestions();
+
+            let questions = "";
+            let questionArr = [];
+            questionData.forEach(item => {
+                questions += "\n" + item.qid + "." + item.question;
+                questionArr.push(item.qid);
+            })
+            console.log(questions);
+
+            const cbtResult = await chatService.generateCBTAnswers(chatText, questions);
+            let answerArr = cbtResult.split("\n");
+            answerArr = answerArr.map((text) => {
+                return text.replace(/^\d+\.\s*/, '');
+            })
+            console.log(answerArr);
+
+            const cbtSaveResult = await cbtService.saveCBTResult(questionArr, answerArr, messageId, sid);
+
             return res.status(200).json({
                 statusCode: 200,
                 ok: true,
-                message: 'Save chat successful',
+                message: 'success'
             });
-        } catch (error) {
-            console.error(error.code);
-            console.error('Error in saveChat: ', error);
+        }
+        catch(error) {
+            console.error('Error in processChat: ', error);
             return next(error);
         }
-
-    },
-
-    processSummary: async (req, res, next) => {
-        let chatText = req.body.chatText;
-
-        chatService.summarizeChat(chatText, (err, data) => {
-            if (err) {
-                res.status(500).json({ message: err });
-            }
-            else {
-                summarizedText = data;
-                res.status(200).json({ message: data });
-            }
-        })
-    },
-
-    processSaveSummary: async (req, res, next) => {
-        let messageId = req.body.messageId;
-        let summarizedText = req.body.summarizedText;
-        try {
-            const savedSummaryData = await chatService.saveSummary(
-                messageId,
-                summarizedText
-            );
-            console.log(savedSummaryData);
-            return res.status(200).json({
-                statusCode: 200,
-                ok: true,
-                message: 'Save summary successful',
-            });
-        } catch (error) {
-            console.error(error.code);
-            console.error('Error in saveSummary: ', error);
-            return next(error);
-        }
-
-    },
-
-    processSuggestion: (req, res, next) => {
-        let summarizedText = req.body.summarizedText;
-
-        chatService.giveSuggestions(summarizedText, (err, data) => {
-            if (err) {
-                res.status(500).json({ message: err });
-            }
-            else {
-                res.status(200).json({ message: data });
-            }
-        })
-    },
+    }
 };
 
 export default chatController;
