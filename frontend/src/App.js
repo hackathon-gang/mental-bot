@@ -21,10 +21,10 @@ class App extends React.Component {
         <BrowserRouter>
           <Routes>
 
-            <Route exact path="/" element={<HomeScreen />} />
+            <Route exact path="/" element={<SigninScreen />} />
             <Route path="/chat" element={<ChatScreenFunction />} />
-            <Route path="/signin" element={<SigninScreen />} />
-            <Route path="*" element={<HomeScreen />} />
+            {/* <Route path="/signin" element={<SigninScreen />} /> */}
+            <Route path="*" element={<SigninScreen />} />
           </Routes>
         </BrowserRouter>
       </div>
