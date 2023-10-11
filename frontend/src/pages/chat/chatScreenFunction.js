@@ -73,6 +73,12 @@ const App = () => {
     }
 
     // get chats by session
+
+    useEffect(() => {
+        setMessages(messages);
+        console.log('messages in useEffect: ', messages);
+    }, [messages]);
+
     useEffect(() => {
         fetchChats();
     }, [sessionId]);
@@ -158,7 +164,7 @@ const App = () => {
     };
 
     const buttonWrapperStyle2 = {
-          
+
     };
 
     const LogobuttonStyle = {
