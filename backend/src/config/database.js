@@ -1,4 +1,4 @@
-import mysql2 from 'mysql2';
+import mysql2 from 'mysql2/promise';
 import config from './config.js';
 
 const pool = mysql2.createPool({
