@@ -19,7 +19,9 @@ const App = () => {
     const [hasSessions, setHasSessions] = useState(false);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-    const [sections, setSections] = useState([]);
+
+    const [sessions, setSessions] = useState([]);
+
     const [sessionId, setSessionId] = useState(1);
     const [userId, setUserId] = useState(1);
 
@@ -229,7 +231,7 @@ const App = () => {
     }
 
     const handleNewChat = () => {
-        setSections([...sections, <div className='row eachSession' style={ExistingSession}>
+        setSessions([...sessions, <div className='row eachSession' style={ExistingSession}>
             <div className='col-lg-2'>
                 <Image src={require("../../Images/TestingLogo.png")} style={{ padding: '2px' }} fluid />
             </div>
@@ -377,7 +379,7 @@ const App = () => {
                                 <div style={randomBarStyle}></div>
                                 <button style={NewChatButton} onClick={handleNewChat}>+ New Chat</button>
                                 <div style={scrollViewSession}>
-                                    {sections.map((section, index) => (
+                                    {sessions.map((section, index) => (
                                         <div key={index}>{section}</div>
                                     ))}
                                 </div>
