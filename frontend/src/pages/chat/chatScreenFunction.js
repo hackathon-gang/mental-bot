@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 import axios from 'axios';
@@ -13,28 +13,22 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
+    const sendText = useRef(null);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
     const [hasChats, setHasChats] = useState(false);
     const [hasSessions, setHasSessions] = useState(false);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-
     const [sessions, setSessions] = useState([]);
-
     const [sessionId, setSessionId] = useState(1);
     const [userId, setUserId] = useState(1);
-
-    
-
-
     const [sessionDateTime, setSessionDateTime] = useState('');
 
     const baseUrl = process.env.REACT_APP_SERVER_BASE_URL;
 
-    // get sessions 
-    useEffect(() => {
-        console.log('sessionDateTime: ', sessionDateTime)
+    const fetchSessions = () => {
         axios
             .get(`${baseUrl}/api/user/${userId}/sessions?dateTime=${sessionDateTime}`)
             .then((response) => {
@@ -46,20 +40,25 @@ const App = () => {
             .catch((error) => {
                 console.error(error);
             });
+    }
+
+    // get sessions 
+    useEffect(() => {
+        console.log('sessionDateTime: ', sessionDateTime)
+        fetchSessions();
     }, [sessionDateTime]);
 
     useEffect(() => {
         setSessions(sessions);
         console.log('sessions in useEffect: ', sessions);
-    });
+    }, [sessions]);
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setSessionDateTime(e.target.value);
     }
 
-    // get chats by session
-    useEffect(() => {
+    const fetchChats = () => {
         axios
             .get(`${baseUrl}/api/user/${userId}/${sessionId}/chats`)
             .then((response) => {
@@ -71,7 +70,22 @@ const App = () => {
             .catch((error) => {
                 console.error(error);
             });
+    }
+
+    // get chats by session
+    useEffect(() => {
+        fetchChats();
     }, [sessionId]);
+
+    const handleSessionChange = (sid) => {
+        setSessionId(sid)
+        console.log('sessionId: ', sessionId);
+    }
+
+    useEffect(() => {
+        setSessionId(sessionId);
+        console.log('sessionId in useEffect: ', sessionId)
+    })
 
     // send text by user 
     const handleSend = async (event) => {
@@ -93,12 +107,31 @@ const App = () => {
                 console.log(response);
                 setMessage('');
             });
+
+        fetchChats();
     }
 
-    const handleSearchSubmit = () => {
-        // Implement your search logic here, using this.state.searchTerm
-        console.log('Searching for: ' + searchTerm);
+    // create new session
+    const handleNewSession = async (event) => {
+        console.log('submit button is clicked!');
+        event.preventDefault();
+        const requestBody = {
+            userId
+        };
+        console.log(requestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/sessions`, requestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log(response);
+                fetchSessions();
+            });
+
     }
+
 
     const handleSendChange = (e) => {
         setSendTerm(e.target.value);
@@ -230,17 +263,6 @@ const App = () => {
         margin: '20px 0px'
     }
 
-    const handleNewChat = () => {
-        setSessions([...sessions, <div className='row eachSession' style={ExistingSession}>
-            <div className='col-lg-2'>
-                <Image src={require("../../Images/TestingLogo.png")} style={{ padding: '2px' }} fluid />
-            </div>
-            <div className='col-lg-10'>
-                <p>Something bruh</p>
-            </div>
-        </div>]);
-    };
-
     //css of the third (biggest) column 
     const projectNameDiv = {
         width: '100%',
@@ -365,36 +387,34 @@ const App = () => {
                                 </div>
                             </div>
                             <div className='col-lg-10' style={SummarizeChatsColumn}>
-                                <h3> Chats</h3>
+                                <h3>Chats</h3>
                                 <div className='searchComponent' style={searchComponent}>
                                     <input
                                         type="text"
-                                        placeholder="Search..."
+                                        placeholder="Search by date..."
                                         value={searchTerm}
                                         onChange={handleSearchChange}
                                         style={inputStyle}
                                     />
-                                    <button onClick={handleSearchSubmit} style={searchButton}>Search</button>
                                 </div>
                                 <div style={randomBarStyle}></div>
-                                <button style={NewChatButton} onClick={handleNewChat}>+ New Chat</button>
+                                <button style={NewChatButton} onClick={handleNewSession}>+ New Chat</button>
                                 <div style={scrollViewSession}>
-                                    {sessions.map((section, index) => (
-                                        <div key={index}>{section}</div>
+                                    {sessions.map((session) => (
+                                        <div className='bg-white m-2 p-2' key={session.sid} onClick={() => handleSessionChange(session.sid)}>
+                                            <p>ID: {session.sid}</p>
+                                            <p>Name: {session.startTime}</p>
+                                        </div>
                                     ))}
                                 </div>
-
                             </div>
                         </div>
                     </div>
                     <div className='col-lg-8' style={messagesAreaStyle}>
-                        <div style={projectNameDiv}>
-                            <h5>Project Name</h5>
-                        </div>
                         <div className='messagePopUpArea' style={scrollViewStyle}>
                             <div style={messages.length % 2 === 0 ? grayContentStyle : contentStyle}>
-                                {messages.map((message, index) => (
-                                    <div key={index} style={messageStyle}>
+                                {messages.map((message) => (
+                                    <div key={message.mid} style={messageStyle}>
                                         <div style={message.isYellow ? yellowBackgroundStyle : grayBackgroundStyle}>
                                             {message.text}
                                         </div>
@@ -411,8 +431,18 @@ const App = () => {
                                     value={sendTerm}
                                     onChange={handleSendChange}
                                     style={textInputStyle}
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter') {
+                                            event.preventDefault(); // Prevent the default form submission
+                                            event.stopPropagation(); // Stop the event from propagating up the DOM tree
+                                            sendText.current.click(); // Trigger the click event on the sendText button
+                                        }
+                                    }}
                                 />
-                                <button onClick={handleSendSubmit} style={sendButton}>Send</button>
+                                <button ref={sendText} onClick={handleSendSubmit} style={sendButton}>
+                                    Send
+                                </button>
+
                             </div>
                         </div>
                     </div>

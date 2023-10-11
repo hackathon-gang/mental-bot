@@ -8,5 +8,6 @@ const router = express.Router();
 router.post('/api/user/:userId/:sessionId/chat', chatController.processChat);
 router.get('/api/user/:userId/sessions', sessionController.processGetSessions)
 router.get('/api/user/:userId/:sessionId/chats', chatController.processGetChats);
+router.post('/api/user/:userId/sessions', sessionController.processSaveSession)
 
 export default router;

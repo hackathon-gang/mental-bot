@@ -33,7 +33,33 @@ const sessionController = {
             console.error('Error in getSessions: ', error);
             return next(error);
         }
-    }
+    },
+
+    processSaveSession: async (req, res, next) => {
+        let uid = req.body.userId;
+
+        try {
+            const saveSessionResult = await sessionService.saveSession(uid);
+
+            if (saveSessionResult) {
+                return res.status(200).json({
+                    statusCode: 200,
+                    ok: true,
+                    message: 'Create session successful',
+                });
+            } else {
+                return res.status(500).json({
+                    statusCode: 500,
+                    ok: false,
+                    message: 'Failed to create session',
+                });
+            }
+        }
+        catch (error) {
+            console.error('Error in saveSession: ', error);
+            return next(error);
+        }
+    },
 }
 
 export default sessionController;
