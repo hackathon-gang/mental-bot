@@ -39,8 +39,42 @@ const chatController = {
                 message: 'success'
             });
         }
-        catch(error) {
+        catch (error) {
             console.error('Error in processChat: ', error);
+            return next(error);
+        }
+    },
+
+    processGetChats: async (req, res, next) => {
+        let sid = req.query.sid;
+        let byUser = req.query.byUser;
+
+        try {
+            const chats = await chatService.getChats(sid, byUser);
+            if (chats) {
+                console.log('chats: ', chats);
+                const chatData = chats.map((chat) => ({
+                    sid: chat.sid,
+                    mid: chat.mid,
+                    dateTime: chat.date_time,
+                    message: chat.message,
+                    byUser: chat.by_user
+                }));
+                res.status(200).json({
+                    statusCode: 200,
+                    ok: true,
+                    message: 'Read chat details successful',
+                    data: chatData,
+                });
+            } else {
+                res.status(404).json({
+                    statusCode: 404,
+                    ok: true,
+                    message: 'No chats exists',
+                });
+            }
+        } catch (error) {
+            console.error('Error in getChats: ', error);
             return next(error);
         }
     }
