@@ -15,6 +15,7 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
     const [messages, setMessages] = useState([]);
+    const [sections, setSections] = useState([]);
 
     useEffect(() => {
 
@@ -44,6 +45,7 @@ const App = () => {
         }
     }
 
+    //the css of the smallest column 
     const smallestColumn = {
         backgroundColor: '#FAF7FF', // Set the background color to #E1D0FC
         minHeight: '100vh', // Match the screen height
@@ -101,6 +103,7 @@ const App = () => {
         width: '3.5%',
     };
 
+    //css of second column
     const SummarizeChatsColumn = {
         backgroundColor: '#ECE1FF', // Set the background color to #E1D0FC
         minHeight: '100vh', // Match the screen height
@@ -134,6 +137,42 @@ const App = () => {
         marginTop: '15px'
     };
 
+    const NewChatButton = {
+        backgroundColor: '#AC79FF',
+        borderRadius: '10px',
+        width: '100%',
+        marginTop: '15px',
+        padding: '10px'
+    }
+
+    const scrollViewSession = {
+        overflowY: 'scroll', // Enable vertical scrolling
+        maxHeight: '515px', // Set a maximum height for the scrollable area
+        flex: 1,
+        width: '100%',
+        padding: '5px',
+        marginTop: '15px'
+    }
+
+    const ExistingSession = {
+        backgroundColor: '#FAF7FF',
+        padding: '7px',
+        borderRadius: '7px',
+        margin: '20px 0px'
+    }
+
+    const handleNewChat = () => {
+        setSections([...sections, <div className='row eachSession' style={ExistingSession}>
+            <div className='col-lg-2'>
+                <Image src={require("../../Images/TestingLogo.png")} style={{ padding: '2px' }} fluid />
+            </div>
+            <div className='col-lg-10'>
+                <p>Something bruh</p>
+            </div>
+        </div>]);
+    };
+
+    //css of the third (biggest) column 
     const projectNameDiv = {
         width: '100%',
         backgroundColor: '#C1A5EE',
@@ -160,6 +199,7 @@ const App = () => {
         flex: 1,
         width: '100%',
         padding: '20px',
+
     }
 
     const contentStyle = {
@@ -232,25 +272,25 @@ const App = () => {
                             <div className='col-lg-2' style={smallestColumn}>
                                 <div style={buttonWrapperStyle}>
                                     <Button variant="primary" style={LogobuttonStyle}>
-                                        <Image src="../Images/TestingLogo.png" fluid />
+                                        <Image src={require("../../Images/TestingLogo.png")} fluid />
                                     </Button>
                                 </div>
 
                                 <div style={buttonWrapperStyle}>
                                     <Button variant="primary" style={ChatbuttonStyle}>
-                                        <Image src="../Images/TestingLogo.png" fluid />
+                                        <Image src={require("../../Images/TestingLogo.png")} fluid />
                                     </Button>
                                 </div>
 
                                 <div style={bottomDivProfile}>
                                     <div style={buttonWrapperStyle}>
                                         <Button variant="primary" style={ChatbuttonStyle}>
-                                            <Image src="../Images/TestingLogo.png" fluid />
+                                            <Image src={require("../../Images/TestingLogo.png")} fluid />
                                         </Button>
                                     </div>
                                     <div style={buttonWrapperStyle}>
                                         <Button variant="primary" style={ProfilebuttonStyle}>
-                                            <Image src="../Images/TestingLogo.png" fluid />
+                                            <Image src={require("../../Images/TestingLogo.png")} fluid />
                                         </Button>
                                     </div>
                                 </div>
@@ -268,6 +308,13 @@ const App = () => {
                                     <button onClick={handleSearchSubmit} style={searchButton}>Search</button>
                                 </div>
                                 <div style={randomBarStyle}></div>
+                                <button style={NewChatButton} onClick={handleNewChat}>+ New Chat</button>
+                                <div style={scrollViewSession}>
+                                    {sections.map((section, index) => (
+                                        <div key={index}>{section}</div>
+                                    ))}
+                                </div>
+
                             </div>
                         </div>
                     </div>
