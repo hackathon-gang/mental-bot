@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 import axios from 'axios';
+import '../../css/Loadingtext.css';
 
 // import {
 //     Route,
@@ -15,6 +16,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const App = () => {
     const sendText = useRef(null);
 
+    const [isSelected, setIsSelected] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
     const [hasChats, setHasChats] = useState(false);
@@ -98,7 +100,8 @@ const App = () => {
     }, [sessionId]);
 
     const handleSessionChange = (sid) => {
-        setSessionId(sid)
+        setIsSelected(sid);
+        setSessionId(sid);
         console.log('sessionId: ', sessionId);
     }
 
@@ -110,7 +113,7 @@ const App = () => {
     // send text by user 
     const handleSend = async (event) => {
         console.log('send button is clicked!');
-        setMessages([...messages, {sid: sessionId, mid: undefined, dateTime: undefined, message: sendTerm, byUser: 1}, {message: '..................'}]);
+        setMessages([...messages, { sid: sessionId, mid: undefined, dateTime: undefined, message: sendTerm, byUser: 1 }, { message: 'animated' }]);
         setSendTerm('');
         event.preventDefault();
         const requestBody = {
@@ -119,17 +122,17 @@ const App = () => {
             by_user: 1
         };
         console.log(requestBody);
-        // axios
-        //     .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //     })
-        //     .then((response) => {
-        //         console.log(response);
-        //         setSendTerm('');
-        //         fetchChats();
-        //     });
+        axios
+            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log(response);
+                setSendTerm('');
+                fetchChats();
+            });
     }
 
     // create new session
@@ -180,8 +183,9 @@ const App = () => {
     };
 
     const LogobuttonStyle = {
-        backgroundColor: '#9356F6', // Set the background color
+        backgroundColor: 'transparent', // Set the background color
         position: 'absolute',
+        border: 'none',
         top: 0,
         left: 0,
         right: 0,
@@ -199,6 +203,20 @@ const App = () => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+    };
+
+    const SettingbuttonStyle = {
+        backgroundColor: '#9356F6', // Set the background color
+        position: 'absolute',
+        top: '10%',              // Adjust vertical position as needed
+        left: '10%',             // Adjust horizontal position as needed
+        width: '80%',            // Make the button larger by reducing the width
+        height: '80%',           // Maintain the button as a square
+        display: 'flex',
+        justifyContent: 'center',
+        fontSize: '25px',
+        border: 'none',
+        alignItems: 'center'
     };
 
     const ProfilebuttonStyle = {
@@ -243,8 +261,10 @@ const App = () => {
 
     const inputStyle = {
         flex: 1, // Let the input expand to take available space
-        borderRadius: '15px', // Rounded corners
+        borderRadius: '10px', // Rounded corners
         padding: '4px', // Add padding for better styling
+        fontSize: '14px',
+        textIndent: '5px'
     };
 
     const searchButton = {
@@ -262,11 +282,13 @@ const App = () => {
     };
 
     const NewChatButton = {
-        backgroundColor: '#AC79FF',
+        backgroundColor: 'transparent',
         borderRadius: '10px',
         width: '100%',
         marginTop: '15px',
-        padding: '10px'
+        padding: '10px',
+        borderColor: '#AC79FF',
+        borderWidth: 2
     }
 
     const scrollViewSession = {
@@ -396,6 +418,15 @@ const App = () => {
         borderRadius: '5px'
     }
 
+    const sessionStyle = {
+        textAlign: 'left',
+        padding: '10px',
+        textIndent: '5px',
+        cursor: 'pointer',
+        borderRadius: '7px',
+        marginBottom: '10px'
+    };
+
     return (
         <div id="homepage">
             <div className='frame container-fluid'>
@@ -411,14 +442,14 @@ const App = () => {
 
                                 <div style={buttonWrapperStyle}>
                                     <Button variant="primary" style={ChatbuttonStyle}>
-                                        <Image src={require("../../Images/TestingLogo.png")} fluid />
+                                        <i style={{ fontSize: '25px' }} class="fa-solid fa-message"></i>
                                     </Button>
                                 </div>
 
                                 <div style={bottomDivProfile}>
                                     <div style={buttonWrapperStyle}>
-                                        <Button variant="primary" style={ChatbuttonStyle}>
-                                            <Image src={require("../../Images/TestingLogo.png")} fluid />
+                                        <Button variant="primary" style={SettingbuttonStyle}>
+                                            <i class="fa-solid fa-gear"></i>
                                         </Button>
                                     </div>
                                     <div style={buttonWrapperStyle}>
@@ -429,7 +460,7 @@ const App = () => {
                                 </div>
                             </div>
                             <div className='col-lg-10' style={SummarizeChatsColumn}>
-                                <h3>Chats</h3>
+                                <h3 style={{ marginLeft: '5px' }}>Chats</h3>
                                 <div className='searchComponent' style={searchComponent}>
                                     <input
                                         type="text"
@@ -444,10 +475,13 @@ const App = () => {
                                 <div style={scrollViewSession}>
                                     {sessions.map((session) => {
                                         let formatDate = new Date(session.startTime);
+                                        let backgroundColor = (session.sid == isSelected) ? 'rgba(100,100,100,0.1)' : '';
                                         return (
-                                            <div className='bg-white m-2 p-2' key={session.sid} onClick={() => handleSessionChange(session.sid)}>
-                                                <p>ID: {session.sid}</p>
-                                                <p>Name: {formatDate.getDate() + "-" + (formatDate.getMonth() + 1) + "-" + formatDate.getFullYear() + " " + formatDate.getHours() + ":" + formatDate.getMinutes() + ":" + formatDate.getSeconds()}</p>
+                                            <div style={{ ...sessionStyle, backgroundColor: backgroundColor }} key={session.sid} onClick={() => handleSessionChange(session.sid)}>
+                                                <p style={{ margin: 0 }}>
+                                                    <i style={{ fontSize: '16px', verticalAlign: 'middle' }} class="fa-regular fa-message"></i>
+                                                    &ensp;&nbsp;Session {session.sid}&ensp;({formatDate.getDate() + "-" + (formatDate.getMonth() + 1) + "-" + formatDate.getFullYear() + " " + formatDate.getHours() + ":" + formatDate.getMinutes() + ":" + formatDate.getSeconds()})
+                                                </p>
                                             </div>
                                         )
                                     })}
@@ -462,21 +496,29 @@ const App = () => {
                                     let isUser = message.byUser;
                                     let messageLength = message.message.length;
                                     let customWidth = 0;
-                                    if(messageLength < 15) {
+                                    if (messageLength < 15) {
                                         customWidth = 12;
                                     }
                                     else {
                                         customWidth = (messageLength * 75) / 120;
-                                        if(customWidth > 75) {
+                                        if (customWidth > 75) {
                                             customWidth = 75;
                                         }
                                     }
-                                    
+
                                     let width = customWidth + "%";
+                                    let messageText = message.message;
                                     return (
                                         <div key={message.mid} style={messageStyle}>
                                             <div style={{ ...(isUser == 1) ? userchatStyle : aichatStyle, width: width }}>
-                                                {message.message}
+                                                {(messageText == "animated") ?
+                                                    (
+                                                        <div className='loading-text'>
+                                                            <span style={{fontSize: '50px'}} className="dot">.</span>
+                                                            <span style={{fontSize: '50px'}} className="dot">.</span>
+                                                            <span style={{fontSize: '50px'}} className="dot">.</span>
+                                                        </div>
+                                                    ) : messageText}
                                             </div>
                                         </div>
                                     )
