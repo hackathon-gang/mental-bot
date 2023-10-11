@@ -23,7 +23,9 @@ const App = () => {
     const [messages, setMessages] = useState([]);
     const [sessions, setSessions] = useState([]);
     const [sessionId, setSessionId] = useState(1);
-    const [userId, setUserId] = useState(localStorage.getItem('uid'));
+    const [messageId, setMessageId] = useState();
+    // const [userId, setUserId] = useState(localStorage.getItem('uid'));
+    const [userId, setUserId] = useState(1)
     const [userImage, setUserImage] = useState("../../Images/TestingLogo.png");
 
     const [sessionDateTime, setSessionDateTime] = useState('');
@@ -111,14 +113,33 @@ const App = () => {
     const handleSend = async (event) => {
         console.log('send button is clicked!');
         event.preventDefault();
-        const requestBody = {
+        const userRequestBody = {
             sid: sessionId,
             chatText: sendTerm,
-            by_user: 1
         };
-        console.log(requestBody);
+        console.log(userRequestBody);
         axios
-            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
+            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, userRequestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log(response);
+                setMessageId(response.data);
+                console.log('messageId: ', messageId)
+                setSendTerm('');
+                fetchChats();
+            });
+
+        const aiRequestBody = {
+            sid: sessionId,
+            chatText: sendTerm,
+            messageId: messageId
+        };
+        console.log(aiRequestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat/ai`, aiRequestBody, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
