@@ -15,6 +15,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const App = () => {
     const sendText = useRef(null);
 
+    const [temporaryMessage, setTemporaryMessage] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
     const [hasChats, setHasChats] = useState(false);
@@ -48,7 +49,7 @@ const App = () => {
             .get(`${baseUrl}/api/user/${userId}/sessions?dateTime=${sessionDateTime}`)
             .then((response) => {
                 console.log('response: ', response);
-                setSessions(response.data.data);
+                setSessions(response.data.data.reverse());
                 setHasSessions(true);
                 console.log('sessions: ', sessions);
             })
@@ -87,26 +88,18 @@ const App = () => {
             });
     }
 
-    // get chats by session
-
     useEffect(() => {
-        setMessages(messages);
-        console.log('messages in useEffect: ', messages);
-    }, [messages]);
+        console.log(temporaryMessage);
+    }, [temporaryMessage]);
 
     useEffect(() => {
         fetchChats();
     }, [sessionId]);
 
     const handleSessionChange = (sid) => {
-        setSessionId(sid)
+        setSessionId(sid);
         console.log('sessionId: ', sessionId);
     }
-
-    useEffect(() => {
-        setSessionId(sessionId);
-        console.log('sessionId in useEffect: ', sessionId)
-    })
 
     // create new session
     const handleNewSession = async (event) => {
@@ -123,9 +116,11 @@ const App = () => {
                 },
             })
             .then((response) => {
+                console.log("kfdasjkfjsdakfjsadkfjsdak");
                 console.log(response);
-                setSessionId(response.data.data)
+                setSessionId(response.data.data);
                 fetchSessions();
+                handleSend(event, response.data.data);
             });
     }
 
@@ -136,25 +131,25 @@ const App = () => {
         if (!sessionId) {
             handleNewSession(event);
         }
-        setSessionId(sessionId);
         handleSessionChange(sessionId);
         console.log('sessionId in handleSend: ', sessionId);
     }
 
     // send text by user 
-    const handleSend = async (event) => {
+    const handleSend = async (event, sid) => {
         console.log('send button is clicked!');
-        setMessages([...messages, { sid: sessionId, mid: undefined, dateTime: undefined, message: sendTerm, byUser: 1 }, { message: '..................' }]);
         setSendTerm('');
         event.preventDefault();
         const userRequestBody = {
-            sid: sessionId,
+            sid: (sessionId == undefined) ? sid : sessionId,
             chatText: sendTerm,
         };
+        console.log(sessionId);
+        console.log(messages);
 
         console.log(userRequestBody);
         axios
-            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, userRequestBody, {
+            .post(`${baseUrl}/api/user/${userId}/${(sessionId == undefined) ? sid : sessionId}/chat`, userRequestBody, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -174,7 +169,7 @@ const App = () => {
         };
         console.log(aiRequestBody);
         axios
-            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat/ai`, aiRequestBody, {
+            .post(`${baseUrl}/api/user/${userId}/${(sessionId == undefined) ? sid : sessionId}/chat/ai`, aiRequestBody, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -188,7 +183,6 @@ const App = () => {
 
     const handleNewSessionAndSendChat = (event) => {
         handleNewSessionOnChat(event);
-        handleSend(event);
     }
 
     const handleSendChange = (e) => {
@@ -490,8 +484,11 @@ const App = () => {
                                     let isUser = message.byUser;
                                     let messageLength = message.message.length;
                                     let customWidth = 0;
-                                    if (messageLength < 15) {
+                                    if (messageLength < 10) {
                                         customWidth = 12;
+                                    }
+                                    else if (messageLength < 15) {
+                                        customWidth = 15;
                                     }
                                     else {
                                         customWidth = (messageLength * 75) / 120;
