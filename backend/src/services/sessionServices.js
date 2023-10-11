@@ -21,6 +21,21 @@ const sessionService = {
         }
     },
 
+    saveSession: async (userId) => {
+        console.log('userId: ', userId);
+        try {
+            const query = `
+            INSERT INTO m_session (uid, end_time) VALUES (?,NULL);
+            `;
+            const results = await pool.query(query, [userId]);
+            console.log(results[0]);
+            return results[0].insertId;
+        } catch (error) {
+            console.error('Error in saveSession: ', error);
+            throw error;
+        }
+    },
+
 }
 
 export default sessionService;
