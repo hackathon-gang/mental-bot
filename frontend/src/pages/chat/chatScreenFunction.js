@@ -15,7 +15,7 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
     const [messages, setMessages] = useState([]);
-    const [sections, setSections] = useState([]);
+    const [sessions, setSessions] = useState([]);
 
     useEffect(() => {
 
@@ -162,7 +162,7 @@ const App = () => {
     }
 
     const handleNewChat = () => {
-        setSections([...sections, <div className='row eachSession' style={ExistingSession}>
+        setSessions([...sessions, <div className='row eachSession' style={ExistingSession}>
             <div className='col-lg-2'>
                 <Image src={require("../../Images/TestingLogo.png")} style={{ padding: '2px' }} fluid />
             </div>
@@ -310,7 +310,7 @@ const App = () => {
                                 <div style={randomBarStyle}></div>
                                 <button style={NewChatButton} onClick={handleNewChat}>+ New Chat</button>
                                 <div style={scrollViewSession}>
-                                    {sections.map((section, index) => (
+                                    {sessions.map((section, index) => (
                                         <div key={index}>{section}</div>
                                     ))}
                                 </div>
