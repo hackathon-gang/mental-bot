@@ -12,6 +12,7 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class App extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -239,25 +240,25 @@ class App extends React.Component {
                                 <div className='col-lg-2' style={smallestColumn}>
                                     <div style={buttonWrapperStyle}>
                                         <Button variant="primary" style={LogobuttonStyle}>
-                                            <Image src="../Images/TestingLogo.png" fluid />
+                                            <Image src={require("../../Images/TestingLogo.png")} fluid />
                                         </Button>
                                     </div>
 
                                     <div style={buttonWrapperStyle}>
                                         <Button variant="primary" style={ChatbuttonStyle}>
-                                            <Image src="../Images/TestingLogo.png" fluid />
+                                            <Image src={require("../../Images/TestingLogo.png")} fluid />
                                         </Button>
                                     </div>
 
                                     <div style={bottomDivProfile}>
                                         <div style={buttonWrapperStyle}>
                                             <Button variant="primary" style={ChatbuttonStyle}>
-                                                <Image src="../Images/TestingLogo.png" fluid />
+                                                <Image src={require("../../Images/TestingLogo.png")} fluid />
                                             </Button>
                                         </div>
                                         <div style={buttonWrapperStyle}>
                                             <Button variant="primary" style={ProfilebuttonStyle}>
-                                                <Image src="../Images/TestingLogo.png" fluid />
+                                                <Image src={require("../../Images/TestingLogo.png")} fluid />
                                             </Button>
                                         </div>
                                     </div>
