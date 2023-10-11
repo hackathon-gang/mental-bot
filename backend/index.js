@@ -1,31 +1,33 @@
-// const express = require("express");
-// const cors = require('cors');
-// const config = require('./src/config/config');
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import router from './src/routes/routes.js';
 
-// let app = express();
+let app = express();
+app.use(cors());
 
-// // Enable CORS for all routes using the cors middleware
-// app.use(cors());
+// Server Settings
+const PORT = 5000;
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// // Server Settings
-// const PORT = 5000;
-// const bodyParser = require("body-parser");
+app.use(router);
 
-// // Request Parsing
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
+router.get('/', (req, res, next) => {
+    res.status(200).json({ message: "success" });
+})
 
-// // Express Router
-// const router = express.Router();
+app.use((error, req, res, next) => {
+    const status = error.status || 500;
+    return res.status(status).json({
+        statusCode: status,
+        ok: false,
+        message: error.message || "Internal Server Error"
+    });
+})
 
-// // Import and use the chatRoute
-// // const chatRoute = require("./src/router/chatRoute.js");
-// // router.use("/chatRoute", chatRoute);
-
-// app.use(router);
-
-// // Listen for incoming requests
-// app.listen(PORT, err => {
-//     if (err) return console.log(`Cannot Listen on PORT: ${PORT}`);
-//     console.log(`Server is Listening on: http://localhost:${PORT}/`);
-// });
+// Listen for incoming requests
+app.listen(PORT, err => {
+    if (err) return console.log(`Cannot Listen on PORT: ${PORT}`);
+    console.log(`Server is Listening on: http://localhost:${PORT}/`);
+});
