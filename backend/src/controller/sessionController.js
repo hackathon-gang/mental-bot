@@ -53,6 +53,7 @@ const sessionController = {
                     statusCode: 500,
                     ok: false,
                     message: 'Failed to create session',
+                    data: saveSessionResult
                 });
             }
         }

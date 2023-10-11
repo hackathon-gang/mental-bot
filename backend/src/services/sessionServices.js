@@ -10,7 +10,7 @@ const sessionService = {
             if (dateTime && dateTime != '') {
                 query += ` AND start_time RLIKE ?`
             }
-            query += ` ORDER BY end_time`
+            query += ` ORDER BY end_time DESC`;
             console.log('query: ', query);
             const results = await pool.query(query, [userId, dateTime]);
             console.log(results[0]);
