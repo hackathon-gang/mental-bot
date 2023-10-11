@@ -25,7 +25,8 @@ const App = () => {
     const [sessionId, setSessionId] = useState(1);
     const [userId, setUserId] = useState(1);
 
-    
+
+
 
 
     const [sessionDateTime, setSessionDateTime] = useState('');
@@ -301,8 +302,8 @@ const App = () => {
         display: 'inline-block',
         padding: '10px',
         borderRadius: '10px',
-        //marginLeft: '125px',
-        textAlign: 'left'
+        marginRight: '125px',
+        textAlign: 'left',
     };
 
     const messagesAreaStyle = {
