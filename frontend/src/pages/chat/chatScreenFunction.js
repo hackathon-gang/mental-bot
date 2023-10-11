@@ -73,6 +73,12 @@ const App = () => {
     }
 
     // get chats by session
+
+    useEffect(() => {
+        setMessages(messages);
+        console.log('messages in useEffect: ', messages);
+    }, [messages]);
+
     useEffect(() => {
         fetchChats();
     }, [sessionId]);
@@ -93,7 +99,7 @@ const App = () => {
         event.preventDefault();
         const requestBody = {
             sid: sessionId,
-            message: message,
+            chatText: sendTerm,
             by_user: 1
         };
         console.log(requestBody);
@@ -105,10 +111,9 @@ const App = () => {
             })
             .then((response) => {
                 console.log(response);
-                setMessage('');
+                setSendTerm('');
+                fetchChats();
             });
-
-        fetchChats();
     }
 
     // create new session
@@ -129,7 +134,6 @@ const App = () => {
                 console.log(response);
                 fetchSessions();
             });
-
     }
 
 
@@ -160,7 +164,7 @@ const App = () => {
     };
 
     const buttonWrapperStyle2 = {
-          
+
     };
 
     const LogobuttonStyle = {
@@ -420,7 +424,7 @@ const App = () => {
                                 {messages.map((message) => (
                                     <div key={message.mid} style={messageStyle}>
                                         <div style={message.isYellow ? yellowBackgroundStyle : grayBackgroundStyle}>
-                                            {message.text}
+                                            {message.message}
                                         </div>
                                     </div>
                                 ))}
@@ -443,7 +447,7 @@ const App = () => {
                                         }
                                     }}
                                 />
-                                <button ref={sendText} onClick={handleSendSubmit} style={sendButton}>
+                                <button ref={sendText} onClick={handleSend} style={sendButton}>
                                     Send
                                 </button>
 
