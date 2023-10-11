@@ -16,7 +16,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const App = () => {
     const sendText = useRef(null);
 
+    const [isLoading, setIsLoading] = useState(false);
     const [isSelected, setIsSelected] = useState(0);
+    const [temporaryMessage, setTemporaryMessage] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
     const [hasChats, setHasChats] = useState(false);
@@ -24,7 +26,8 @@ const App = () => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const [sessions, setSessions] = useState([]);
-    const [sessionId, setSessionId] = useState(1);
+    const [sessionId, setSessionId] = useState();
+    const [messageId, setMessageId] = useState();
     const [userId, setUserId] = useState(localStorage.getItem('uid'));
     const [userImage, setUserImage] = useState("../../Images/TestingLogo.png");
 
@@ -49,7 +52,7 @@ const App = () => {
             .get(`${baseUrl}/api/user/${userId}/sessions?dateTime=${sessionDateTime}`)
             .then((response) => {
                 console.log('response: ', response);
-                setSessions(response.data.data.reverse());
+                setSessions(response.data.data);
                 setHasSessions(true);
                 console.log('sessions: ', sessions);
             })
@@ -58,25 +61,32 @@ const App = () => {
             });
     }
 
+    useEffect(() => {
+        fetchChats(sessionId);
+    }, [sessionId]);
+
+    useEffect(() => {
+        console.log("messages: ", messages);
+    }, [messages])
+
+    useEffect(() => {
+        console.log("is Loading: ", isLoading);
+    }, [isLoading]);
+
     // get sessions 
     useEffect(() => {
         console.log('sessionDateTime: ', sessionDateTime)
         fetchSessions();
     }, [sessionDateTime]);
 
-    useEffect(() => {
-        setSessions(sessions);
-        console.log('sessions in useEffect: ', sessions);
-    }, [sessions]);
-
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
         setSessionDateTime(e.target.value);
     }
 
-    const fetchChats = () => {
+    const fetchChats = (sid) => {
         axios
-            .get(`${baseUrl}/api/user/${userId}/${sessionId}/chats`)
+            .get(`${baseUrl}/api/user/${userId}/${(sessionId == undefined) ? sid : sessionId}/chats`)
             .then((response) => {
                 console.log('response: ', response);
                 setMessages(response.data.data);
@@ -88,51 +98,11 @@ const App = () => {
             });
     }
 
-    // get chats by session
-
-    useEffect(() => {
-        setMessages(messages);
-        console.log('messages in useEffect: ', messages);
-    }, [messages]);
-
-    useEffect(() => {
-        fetchChats();
-    }, [sessionId]);
-
     const handleSessionChange = (sid) => {
         setIsSelected(sid);
         setSessionId(sid);
-        console.log('sessionId: ', sessionId);
-    }
-
-    useEffect(() => {
-        setSessionId(sessionId);
-        console.log('sessionId in useEffect: ', sessionId)
-    })
-
-    // send text by user 
-    const handleSend = async (event) => {
-        console.log('send button is clicked!');
-        setMessages([...messages, { sid: sessionId, mid: undefined, dateTime: undefined, message: sendTerm, byUser: 1 }, { message: 'animated' }]);
         setSendTerm('');
-        event.preventDefault();
-        const requestBody = {
-            sid: sessionId,
-            chatText: sendTerm,
-            by_user: 1
-        };
-        console.log(requestBody);
-        axios
-            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then((response) => {
-                console.log(response);
-                setSendTerm('');
-                fetchChats();
-            });
+        console.log('sessionId: ', sessionId);
     }
 
     // create new session
@@ -150,24 +120,84 @@ const App = () => {
                 },
             })
             .then((response) => {
+                console.log("kfdasjkfjsdakfjsadkfjsdak");
                 console.log(response);
+                setSessionId(response.data.data);
+                setIsSelected(response.data.data);
                 fetchSessions();
+                handleSend(event, response.data.data);
             });
     }
 
+    const handleNewSessionOnChat = async (event) => {
+        console.log('send button is clicked!');
+        console.log('sessionId: ', sessionId);
+
+        if (!sessionId) {
+            handleNewSession(event);
+        }
+        else {
+            handleSend(event, undefined);
+        }
+        handleSessionChange(sessionId);
+        console.log('sessionId in handleSend: ', sessionId);
+    }
+
+    // send text by user 
+    const handleSend = async (event, sid) => {
+        console.log('send button is clicked!');
+        setTemporaryMessage([...messages, { sid: ((sessionId == undefined) ? sid : sessionId), message: sendTerm, byUser: 1 }, { sid: ((sessionId == undefined) ? sid : sessionId), message: "animated", byUser: 0 }]);
+        setSendTerm('');
+        setIsLoading(true);
+        event.preventDefault();
+        const userRequestBody = {
+            sid: (sessionId == undefined) ? sid : sessionId,
+            chatText: sendTerm,
+        };
+        console.log(sessionId);
+        console.log(messages);
+
+        console.log("User Body: ", userRequestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/${(sessionId == undefined) ? sid : sessionId}/chat`, userRequestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log(response);
+                setMessageId(response.data);
+                console.log('messageId: ', messageId)
+                setSendTerm('');
+                fetchChats(sid);
+            });
+
+        const aiRequestBody = {
+            sid: sessionId,
+            chatText: sendTerm,
+            messageId: messageId
+        };
+        console.log(aiRequestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/${(sessionId == undefined) ? sid : sessionId}/chat/ai`, aiRequestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                setIsLoading(false);
+                console.log(response);
+                setSendTerm('');
+                fetchChats(sid);
+            });
+    }
+
+    const handleNewSessionAndSendChat = (event) => {
+        handleNewSessionOnChat(event);
+    }
 
     const handleSendChange = (e) => {
         setSendTerm(e.target.value);
-    }
-
-    const handleSendSubmit = () => {
-        const newMessage = sendTerm;
-
-        if (newMessage) {
-            const isYellow = messages.length % 2 === 0;
-            setMessages([...messages, { text: newMessage, isYellow }]);
-            setSendTerm('');
-        }
     }
 
     //the css of the smallest column 
@@ -442,14 +472,14 @@ const App = () => {
 
                                 <div style={buttonWrapperStyle}>
                                     <Button variant="primary" style={ChatbuttonStyle}>
-                                        <i style={{ fontSize: '25px' }} class="fa-solid fa-message"></i>
+                                        <i style={{ fontSize: '25px' }} className="fa-solid fa-message"></i>
                                     </Button>
                                 </div>
 
                                 <div style={bottomDivProfile}>
                                     <div style={buttonWrapperStyle}>
                                         <Button variant="primary" style={SettingbuttonStyle}>
-                                            <i class="fa-solid fa-gear"></i>
+                                            <i className="fa-solid fa-gear"></i>
                                         </Button>
                                     </div>
                                     <div style={buttonWrapperStyle}>
@@ -479,7 +509,7 @@ const App = () => {
                                         return (
                                             <div style={{ ...sessionStyle, backgroundColor: backgroundColor }} key={session.sid} onClick={() => handleSessionChange(session.sid)}>
                                                 <p style={{ margin: 0 }}>
-                                                    <i style={{ fontSize: '16px', verticalAlign: 'middle' }} class="fa-regular fa-message"></i>
+                                                    <i style={{ fontSize: '16px', verticalAlign: 'middle' }} className="fa-regular fa-message"></i>
                                                     &ensp;&nbsp;Session {session.sid}&ensp;({formatDate.getDate() + "-" + (formatDate.getMonth() + 1) + "-" + formatDate.getFullYear() + " " + formatDate.getHours() + ":" + formatDate.getMinutes() + ":" + formatDate.getSeconds()})
                                                 </p>
                                             </div>
@@ -492,37 +522,70 @@ const App = () => {
                     <div className='col-lg-8' style={messagesAreaStyle}>
                         <div className='messagePopUpArea' style={scrollViewStyle}>
                             <div style={messages.length % 2 === 0 ? grayContentStyle : contentStyle}>
-                                {messages.map((message) => {
-                                    let isUser = message.byUser;
-                                    let messageLength = message.message.length;
-                                    let customWidth = 0;
-                                    if (messageLength < 15) {
-                                        customWidth = 12;
-                                    }
-                                    else {
-                                        customWidth = (messageLength * 75) / 120;
-                                        if (customWidth > 75) {
-                                            customWidth = 75;
-                                        }
-                                    }
+                                {
+                                    isLoading ?
+                                        (temporaryMessage.map((message) => {
+                                            let isUser = message.byUser;
+                                            let messageLength = message.message.length;
+                                            let customWidth = 0;
+                                            if (messageLength < 10) {
+                                                customWidth = 12;
+                                            }
+                                            else if (messageLength < 15) {
+                                                customWidth = 15;
+                                            }
+                                            else {
+                                                customWidth = (messageLength * 75) / 120;
+                                                if (customWidth > 75) {
+                                                    customWidth = 75;
+                                                }
+                                            }
 
-                                    let width = customWidth + "%";
-                                    let messageText = message.message;
-                                    return (
-                                        <div key={message.mid} style={messageStyle}>
-                                            <div style={{ ...(isUser == 1) ? userchatStyle : aichatStyle, width: width }}>
-                                                {(messageText == "animated") ?
-                                                    (
-                                                        <div className='loading-text'>
-                                                            <span style={{fontSize: '50px'}} className="dot">.</span>
-                                                            <span style={{fontSize: '50px'}} className="dot">.</span>
-                                                            <span style={{fontSize: '50px'}} className="dot">.</span>
-                                                        </div>
-                                                    ) : messageText}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
+                                            let width = customWidth + "%";
+                                            let messageText = message.message;
+                                            return (
+                                                <div key={message.mid} style={messageStyle}>
+                                                    <div style={{ ...(isUser == 1) ? userchatStyle : aichatStyle, width: width }}>
+                                                        {(messageText == "animated") ?
+                                                            (
+                                                                <div className='loading-text'>
+                                                                    <span style={{ fontSize: '50px' }} className="dot">.</span>
+                                                                    <span style={{ fontSize: '50px' }} className="dot">.</span>
+                                                                    <span style={{ fontSize: '50px' }} className="dot">.</span>
+                                                                </div>
+                                                            ) : messageText}
+                                                    </div>
+                                                </div>
+                                            )
+                                        }))
+                                        : (messages.map((message) => {
+                                            let isUser = message.byUser;
+                                            let messageLength = message.message.length;
+                                            let customWidth = 0;
+                                            if (messageLength < 10) {
+                                                customWidth = 12;
+                                            }
+                                            else if (messageLength < 15) {
+                                                customWidth = 15;
+                                            }
+                                            else {
+                                                customWidth = (messageLength * 75) / 120;
+                                                if (customWidth > 75) {
+                                                    customWidth = 75;
+                                                }
+                                            }
+
+                                            let width = customWidth + "%";
+                                            let messageText = message.message;
+                                            return (
+                                                <div key={message.mid} style={messageStyle}>
+                                                    <div style={{ ...(isUser == 1) ? userchatStyle : aichatStyle, width: width }}>
+                                                        {messageText}
+                                                    </div>
+                                                </div>
+                                            )
+                                        }))
+                                }
                             </div>
 
                         </div>
@@ -542,7 +605,7 @@ const App = () => {
                                         }
                                     }}
                                 />
-                                <button ref={sendText} onClick={handleSend} style={sendButton}>
+                                <button ref={sendText} onClick={handleNewSessionAndSendChat} style={sendButton}>
                                     Send
                                 </button>
 
