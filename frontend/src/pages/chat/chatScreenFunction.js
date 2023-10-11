@@ -23,10 +23,24 @@ const App = () => {
     const [messages, setMessages] = useState([]);
     const [sessions, setSessions] = useState([]);
     const [sessionId, setSessionId] = useState(1);
-    const [userId, setUserId] = useState(1);
+    const [userId, setUserId] = useState(localStorage.getItem('uid'));
+    const [userImage, setUserImage] = useState("../../Images/TestingLogo.png");
+
     const [sessionDateTime, setSessionDateTime] = useState('');
 
     const baseUrl = process.env.REACT_APP_SERVER_BASE_URL;
+
+    useEffect(() => {
+        axios
+            .get(`${baseUrl}/api/user/${userId}`)
+            .then((response) => {
+                console.log('response: ', response);
+                setUserImage(response.data.data[0].picture);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }, []);
 
     const fetchSessions = () => {
         axios
@@ -163,10 +177,6 @@ const App = () => {
         paddingBottom: '100%',  // Create a square shape (height equals width)
     };
 
-    const buttonWrapperStyle2 = {
-
-    };
-
     const LogobuttonStyle = {
         backgroundColor: '#9356F6', // Set the background color
         position: 'absolute',
@@ -190,8 +200,10 @@ const App = () => {
     };
 
     const ProfilebuttonStyle = {
-        backgroundColor: '#9356F6', // Set the background color
+        backgroundColor: 'transparent', // Set the background color
         position: 'absolute',
+        borderColor: '#9356F6',
+        borderRadius: '50%',
         top: 0,
         left: 0,
         right: 0,
@@ -316,6 +328,26 @@ const App = () => {
         margin: '5px 0', // Add vertical margin to separate messages
     };
 
+    const aichatStyle = {
+        marginTop: '15px',
+        marginBottom: '15px',
+        marginRight: 'auto',
+        textAlign: 'justify',
+        padding: '20px',
+        borderRadius: '25px',
+        backgroundColor: '#A9C8E8'
+    };
+
+    const userchatStyle = {
+        marginTop: '15px',
+        marginBottom: '15px',
+        marginLeft: 'auto',
+        textAlign: 'justify',
+        padding: '20px',
+        borderRadius: '25px',
+        backgroundColor: '#FCE1A4'
+    };
+
 
     const yellowBackgroundStyle = {
         backgroundColor: 'yellow', // Yellow background for each message's text length
@@ -331,8 +363,8 @@ const App = () => {
         display: 'inline-block',
         padding: '10px',
         borderRadius: '10px',
-        //marginLeft: '125px',
-        textAlign: 'left'
+        marginRight: '125px',
+        textAlign: 'left',
     };
 
     const messagesAreaStyle = {
@@ -389,7 +421,7 @@ const App = () => {
                                     </div>
                                     <div style={buttonWrapperStyle}>
                                         <Button variant="primary" style={ProfilebuttonStyle}>
-                                            <Image src={require("../../Images/TestingLogo.png")} fluid />
+                                            <Image src={userImage} fluid />
                                         </Button>
                                     </div>
                                 </div>
@@ -408,12 +440,15 @@ const App = () => {
                                 <div style={randomBarStyle}></div>
                                 <button style={NewChatButton} onClick={handleNewSession}>+ New Chat</button>
                                 <div style={scrollViewSession}>
-                                    {sessions.map((session) => (
-                                        <div className='bg-white m-2 p-2' key={session.sid} onClick={() => handleSessionChange(session.sid)}>
-                                            <p>ID: {session.sid}</p>
-                                            <p>Name: {session.startTime}</p>
-                                        </div>
-                                    ))}
+                                    {sessions.map((session) => {
+                                        let formatDate = new Date(session.startTime);
+                                        return (
+                                            <div className='bg-white m-2 p-2' key={session.sid} onClick={() => handleSessionChange(session.sid)}>
+                                                <p>ID: {session.sid}</p>
+                                                <p>Name: {formatDate.getDate() + "-" + (formatDate.getMonth() + 1) + "-" + formatDate.getFullYear() + " " + formatDate.getHours() + ":" + formatDate.getMinutes() + ":" + formatDate.getSeconds()}</p>
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>
@@ -421,13 +456,17 @@ const App = () => {
                     <div className='col-lg-8' style={messagesAreaStyle}>
                         <div className='messagePopUpArea' style={scrollViewStyle}>
                             <div style={messages.length % 2 === 0 ? grayContentStyle : contentStyle}>
-                                {messages.map((message) => (
-                                    <div key={message.mid} style={messageStyle}>
-                                        <div style={message.isYellow ? yellowBackgroundStyle : grayBackgroundStyle}>
-                                            {message.message}
+                                {messages.map((message) => {
+                                    let isUser = message.byUser;
+                                    let width = (message.message.length < 150) ? '35%' : '75%';
+                                    return (
+                                        <div key={message.mid} style={messageStyle}>
+                                            <div style={{ ...(isUser == 1) ? userchatStyle : aichatStyle, width: width }}>
+                                                {message.message}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )
+                                })}
                             </div>
 
                         </div>
