@@ -23,6 +23,7 @@ const App = () => {
     const [messages, setMessages] = useState([]);
     const [sessions, setSessions] = useState([]);
     const [sessionId, setSessionId] = useState(1);
+    const [messageId, setMessageId] = useState();
     const [userId, setUserId] = useState(localStorage.getItem('uid'));
     const [userImage, setUserImage] = useState("../../Images/TestingLogo.png");
 
@@ -113,23 +114,43 @@ const App = () => {
         setMessages([...messages, {sid: sessionId, mid: undefined, dateTime: undefined, message: sendTerm, byUser: 1}, {message: '..................'}]);
         setSendTerm('');
         event.preventDefault();
-        const requestBody = {
+        const userRequestBody = {
             sid: sessionId,
             chatText: sendTerm,
-            by_user: 1
         };
-        console.log(requestBody);
-        // axios
-        //     .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //     })
-        //     .then((response) => {
-        //         console.log(response);
-        //         setSendTerm('');
-        //         fetchChats();
-        //     });
+      
+        console.log(userRequestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, userRequestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log(response);
+                setMessageId(response.data);
+                console.log('messageId: ', messageId)
+                setSendTerm('');
+                fetchChats();
+            });
+
+        const aiRequestBody = {
+            sid: sessionId,
+            chatText: sendTerm,
+            messageId: messageId
+        };
+        console.log(aiRequestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat/ai`, aiRequestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log(response);
+                setSendTerm('');
+                fetchChats();
+            });
     }
 
     // create new session
