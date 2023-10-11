@@ -51,7 +51,7 @@ const chatController = {
         // let byUser = req.query.byUser;
 
         try {
-            const chats = await chatService.getChats(sid);
+            const chats = await chatService.getChats(sid, uid);
             if (chats) {
                 console.log('chats: ', chats);
                 const chatData = chats.map((chat) => ({
