@@ -1,29 +1,98 @@
 import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
+import axios from 'axios';
 
-import {
-    Route,
-    useParams,
-    Routes,
-    BrowserRouter
-} from "react-router-dom";
+// import {
+//     Route,
+//     useParams,
+//     Routes,
+//     BrowserRouter
+// } from "react-router-dom";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
+    const [hasChats, setHasChats] = useState(false);
+    const [hasSessions, setHasSessions] = useState(false);
+    const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
+
     const [sessions, setSessions] = useState([]);
 
-    useEffect(() => {
+    const [sessionId, setSessionId] = useState(1);
+    const [userId, setUserId] = useState(1);
 
-    }, []);
+    
+
+
+    const [sessionDateTime, setSessionDateTime] = useState('');
+
+    const baseUrl = process.env.REACT_APP_SERVER_BASE_URL;
+
+    // get sessions 
+    useEffect(() => {
+        console.log('sessionDateTime: ', sessionDateTime)
+        axios
+            .get(`${baseUrl}/api/user/${userId}/sessions?dateTime=${sessionDateTime}`)
+            .then((response) => {
+                console.log('response: ', response);
+                setSessions(response.data.data);
+                setHasSessions(true);
+                console.log('sessions: ', sessions);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }, [sessionDateTime]);
+
+    useEffect(() => {
+        setSessions(sessions);
+        console.log('sessions in useEffect: ', sessions);
+    });
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
-        //this.setState({ searchTerm: e.target.value });
+        setSessionDateTime(e.target.value);
+    }
+
+    // get chats by session
+    useEffect(() => {
+        axios
+            .get(`${baseUrl}/api/user/${userId}/${sessionId}/chats`)
+            .then((response) => {
+                console.log('response: ', response);
+                setMessages(response.data.data);
+                setHasChats(true);
+                console.log('messages: ', messages);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }, [sessionId]);
+
+    // send text by user 
+    const handleSend = async (event) => {
+        console.log('send button is clicked!');
+        event.preventDefault();
+        const requestBody = {
+            sid: sessionId,
+            message: message,
+            by_user: 1
+        };
+        console.log(requestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log(response);
+                setMessage('');
+            });
     }
 
     const handleSearchSubmit = () => {
