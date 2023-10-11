@@ -1,28 +1,98 @@
 import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
+import axios from 'axios';
 
-import {
-    Route,
-    useParams,
-    Routes,
-    BrowserRouter
-} from "react-router-dom";
+// import {
+//     Route,
+//     useParams,
+//     Routes,
+//     BrowserRouter
+// } from "react-router-dom";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
+    const [hasChats, setHasChats] = useState(false);
+    const [hasSessions, setHasSessions] = useState(false);
+    const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
 
-    useEffect(() => {
+    const [sessions, setSessions] = useState([]);
 
-    }, []);
+    const [sessionId, setSessionId] = useState(1);
+    const [userId, setUserId] = useState(1);
+
+    
+
+
+    const [sessionDateTime, setSessionDateTime] = useState('');
+
+    const baseUrl = process.env.REACT_APP_SERVER_BASE_URL;
+
+    // get sessions 
+    useEffect(() => {
+        console.log('sessionDateTime: ', sessionDateTime)
+        axios
+            .get(`${baseUrl}/api/user/${userId}/sessions?dateTime=${sessionDateTime}`)
+            .then((response) => {
+                console.log('response: ', response);
+                setSessions(response.data.data);
+                setHasSessions(true);
+                console.log('sessions: ', sessions);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }, [sessionDateTime]);
+
+    useEffect(() => {
+        setSessions(sessions);
+        console.log('sessions in useEffect: ', sessions);
+    });
 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
-        //this.setState({ searchTerm: e.target.value });
+        setSessionDateTime(e.target.value);
+    }
+
+    // get chats by session
+    useEffect(() => {
+        axios
+            .get(`${baseUrl}/api/user/${userId}/${sessionId}/chats`)
+            .then((response) => {
+                console.log('response: ', response);
+                setMessages(response.data.data);
+                setHasChats(true);
+                console.log('messages: ', messages);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }, [sessionId]);
+
+    // send text by user 
+    const handleSend = async (event) => {
+        console.log('send button is clicked!');
+        event.preventDefault();
+        const requestBody = {
+            sid: sessionId,
+            message: message,
+            by_user: 1
+        };
+        console.log(requestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, requestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log(response);
+                setMessage('');
+            });
     }
 
     const handleSearchSubmit = () => {
@@ -44,6 +114,7 @@ const App = () => {
         }
     }
 
+    //the css of the smallest column 
     const smallestColumn = {
         backgroundColor: '#FAF7FF', // Set the background color to #E1D0FC
         minHeight: '100vh', // Match the screen height
@@ -105,6 +176,7 @@ const App = () => {
         width: '3.5%',
     };
 
+    //css of second column
     const SummarizeChatsColumn = {
         backgroundColor: '#ECE1FF', // Set the background color to #E1D0FC
         minHeight: '100vh', // Match the screen height
@@ -138,6 +210,42 @@ const App = () => {
         marginTop: '15px'
     };
 
+    const NewChatButton = {
+        backgroundColor: '#AC79FF',
+        borderRadius: '10px',
+        width: '100%',
+        marginTop: '15px',
+        padding: '10px'
+    }
+
+    const scrollViewSession = {
+        overflowY: 'scroll', // Enable vertical scrolling
+        maxHeight: '515px', // Set a maximum height for the scrollable area
+        flex: 1,
+        width: '100%',
+        padding: '5px',
+        marginTop: '15px'
+    }
+
+    const ExistingSession = {
+        backgroundColor: '#FAF7FF',
+        padding: '7px',
+        borderRadius: '7px',
+        margin: '20px 0px'
+    }
+
+    const handleNewChat = () => {
+        setSessions([...sessions, <div className='row eachSession' style={ExistingSession}>
+            <div className='col-lg-2'>
+                <Image src={require("../../Images/TestingLogo.png")} style={{ padding: '2px' }} fluid />
+            </div>
+            <div className='col-lg-10'>
+                <p>Something bruh</p>
+            </div>
+        </div>]);
+    };
+
+    //css of the third (biggest) column 
     const projectNameDiv = {
         width: '100%',
         backgroundColor: '#C1A5EE',
@@ -164,6 +272,7 @@ const App = () => {
         flex: 1,
         width: '100%',
         padding: '20px',
+
     }
 
     const contentStyle = {
@@ -272,6 +381,13 @@ const App = () => {
                                     <button onClick={handleSearchSubmit} style={searchButton}>Search</button>
                                 </div>
                                 <div style={randomBarStyle}></div>
+                                <button style={NewChatButton} onClick={handleNewChat}>+ New Chat</button>
+                                <div style={scrollViewSession}>
+                                    {sessions.map((section, index) => (
+                                        <div key={index}>{section}</div>
+                                    ))}
+                                </div>
+
                             </div>
                         </div>
                     </div>
