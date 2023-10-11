@@ -46,6 +46,7 @@ const sessionController = {
                     statusCode: 200,
                     ok: true,
                     message: 'Create session successful',
+                    data: saveSessionResult
                 });
             } else {
                 return res.status(500).json({

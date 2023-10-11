@@ -15,6 +15,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const App = () => {
     const sendText = useRef(null);
 
+    const [temporaryMessage, setTemporaryMessage] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sendTerm, setSendTerm] = useState('');
     const [hasChats, setHasChats] = useState(false);
@@ -22,7 +23,7 @@ const App = () => {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const [sessions, setSessions] = useState([]);
-    const [sessionId, setSessionId] = useState(1);
+    const [sessionId, setSessionId] = useState();
     const [messageId, setMessageId] = useState();
     const [userId, setUserId] = useState(localStorage.getItem('uid'));
     const [userImage, setUserImage] = useState("../../Images/TestingLogo.png");
@@ -48,7 +49,7 @@ const App = () => {
             .get(`${baseUrl}/api/user/${userId}/sessions?dateTime=${sessionDateTime}`)
             .then((response) => {
                 console.log('response: ', response);
-                setSessions(response.data.data);
+                setSessions(response.data.data.reverse());
                 setHasSessions(true);
                 console.log('sessions: ', sessions);
             })
@@ -87,41 +88,68 @@ const App = () => {
             });
     }
 
-    // get chats by session
-
     useEffect(() => {
-        setMessages(messages);
-        console.log('messages in useEffect: ', messages);
-    }, [messages]);
+        console.log(temporaryMessage);
+    }, [temporaryMessage]);
 
     useEffect(() => {
         fetchChats();
     }, [sessionId]);
 
     const handleSessionChange = (sid) => {
-        setSessionId(sid)
+        setSessionId(sid);
         console.log('sessionId: ', sessionId);
     }
 
-    useEffect(() => {
-        setSessionId(sessionId);
-        console.log('sessionId in useEffect: ', sessionId)
-    })
+    // create new session
+    const handleNewSession = async (event) => {
+        console.log('submit button is clicked!');
+        event.preventDefault();
+        const requestBody = {
+            userId
+        };
+        console.log(requestBody);
+        axios
+            .post(`${baseUrl}/api/user/${userId}/sessions`, requestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((response) => {
+                console.log("kfdasjkfjsdakfjsadkfjsdak");
+                console.log(response);
+                setSessionId(response.data.data);
+                fetchSessions();
+                handleSend(event, response.data.data);
+            });
+    }
+
+    const handleNewSessionOnChat = async (event) => {
+        console.log('send button is clicked!');
+        console.log('sessionId: ', sessionId);
+
+        if (!sessionId) {
+            handleNewSession(event);
+        }
+        handleSessionChange(sessionId);
+        console.log('sessionId in handleSend: ', sessionId);
+    }
 
     // send text by user 
-    const handleSend = async (event) => {
+    const handleSend = async (event, sid) => {
         console.log('send button is clicked!');
-        setMessages([...messages, {sid: sessionId, mid: undefined, dateTime: undefined, message: sendTerm, byUser: 1}, {message: '..................'}]);
         setSendTerm('');
         event.preventDefault();
         const userRequestBody = {
-            sid: sessionId,
+            sid: (sessionId == undefined) ? sid : sessionId,
             chatText: sendTerm,
         };
-      
+        console.log(sessionId);
+        console.log(messages);
+
         console.log(userRequestBody);
         axios
-            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat`, userRequestBody, {
+            .post(`${baseUrl}/api/user/${userId}/${(sessionId == undefined) ? sid : sessionId}/chat`, userRequestBody, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -141,7 +169,7 @@ const App = () => {
         };
         console.log(aiRequestBody);
         axios
-            .post(`${baseUrl}/api/user/${userId}/${sessionId}/chat/ai`, aiRequestBody, {
+            .post(`${baseUrl}/api/user/${userId}/${(sessionId == undefined) ? sid : sessionId}/chat/ai`, aiRequestBody, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -153,39 +181,12 @@ const App = () => {
             });
     }
 
-    // create new session
-    const handleNewSession = async (event) => {
-        console.log('submit button is clicked!');
-        event.preventDefault();
-        const requestBody = {
-            userId
-        };
-        console.log(requestBody);
-        axios
-            .post(`${baseUrl}/api/user/${userId}/sessions`, requestBody, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-            .then((response) => {
-                console.log(response);
-                fetchSessions();
-            });
+    const handleNewSessionAndSendChat = (event) => {
+        handleNewSessionOnChat(event);
     }
-
 
     const handleSendChange = (e) => {
         setSendTerm(e.target.value);
-    }
-
-    const handleSendSubmit = () => {
-        const newMessage = sendTerm;
-
-        if (newMessage) {
-            const isYellow = messages.length % 2 === 0;
-            setMessages([...messages, { text: newMessage, isYellow }]);
-            setSendTerm('');
-        }
     }
 
     //the css of the smallest column 
@@ -483,16 +484,19 @@ const App = () => {
                                     let isUser = message.byUser;
                                     let messageLength = message.message.length;
                                     let customWidth = 0;
-                                    if(messageLength < 15) {
+                                    if (messageLength < 10) {
                                         customWidth = 12;
+                                    }
+                                    else if (messageLength < 15) {
+                                        customWidth = 15;
                                     }
                                     else {
                                         customWidth = (messageLength * 75) / 120;
-                                        if(customWidth > 75) {
+                                        if (customWidth > 75) {
                                             customWidth = 75;
                                         }
                                     }
-                                    
+
                                     let width = customWidth + "%";
                                     return (
                                         <div key={message.mid} style={messageStyle}>
@@ -521,7 +525,7 @@ const App = () => {
                                         }
                                     }}
                                 />
-                                <button ref={sendText} onClick={handleSend} style={sendButton}>
+                                <button ref={sendText} onClick={handleNewSessionAndSendChat} style={sendButton}>
                                     Send
                                 </button>
 
