@@ -24,6 +24,7 @@ const App = () => {
     const [sessions, setSessions] = useState([]);
     const [sessionId, setSessionId] = useState(1);
     const [userId, setUserId] = useState(1);
+
     const [sessionDateTime, setSessionDateTime] = useState('');
 
     const baseUrl = process.env.REACT_APP_SERVER_BASE_URL;
@@ -331,8 +332,8 @@ const App = () => {
         display: 'inline-block',
         padding: '10px',
         borderRadius: '10px',
-        //marginLeft: '125px',
-        textAlign: 'left'
+        marginRight: '125px',
+        textAlign: 'left',
     };
 
     const messagesAreaStyle = {
