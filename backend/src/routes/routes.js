@@ -1,4 +1,5 @@
-import chatController from "../controller/chatController.js"
+import chatController from "../controller/chatController.js";
+import userController from "../controller/userController.js";
 import validateUser from "../middlewares/validateUser.js";
 import sessionController from "../controller/sessionController.js";
 import express from 'express';
