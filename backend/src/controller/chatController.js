@@ -11,6 +11,8 @@ const chatController = {
         try {
             const messageId = await chatService.saveChat(sid, chatText, 1);
             const summaryText = await chatService.summarizeChat(chatText);
+            const suggestionText = await chatService.giveSuggestions(summaryText);
+            const suggestionResult = await chatService.saveChat(sid, suggestionText, 0);
             const summarySaveResult = await chatService.saveSummary(messageId, summaryText);
             const questionData = await cbtService.getCBTQuestions();
 
@@ -29,7 +31,7 @@ const chatController = {
             })
             console.log(answerArr);
 
-            const result = await cbtService.saveCBTResult(questionArr, answerArr, messageId, sid);
+            const cbtSaveResult = await cbtService.saveCBTResult(questionArr, answerArr, messageId, sid);
 
             return res.status(200).json({
                 statusCode: 200,
