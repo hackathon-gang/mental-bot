@@ -11,7 +11,6 @@ import ChatScreen from './pages/chat/chatScreen';
 import ChatScreenFunction from './pages/chat/chatScreenFunction';
 class App extends React.Component {
   constructor() {
-
     super()
   }
 
@@ -22,7 +21,7 @@ class App extends React.Component {
           <Routes>
 
             <Route exact path="/" element={<HomeScreen />} />
-            <Route path="/chatClass" element={<ChatScreen />} />
+            {/* <Route path="/chatClass" element={<ChatScreen />} /> */}
             <Route path="/chat" element={<ChatScreenFunction />} />
             <Route path="*" element={<HomeScreen />} />
           </Routes>

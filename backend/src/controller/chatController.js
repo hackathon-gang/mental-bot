@@ -5,8 +5,8 @@ const chatController = {
 
     processChat: async (req, res, next) => {
         let chatText = req.body.chatText;
-        let uid = req.body.uid;
-        let sid = req.body.sid;
+        let uid = req.params.userId;
+        let sid = req.params.sessionId;
 
         try {
             const messageId = await chatService.saveChat(sid, chatText, 1);
@@ -46,11 +46,12 @@ const chatController = {
     },
 
     processGetChats: async (req, res, next) => {
-        let sid = req.query.sid;
-        let byUser = req.query.byUser;
+        let sid = req.params.sessionId;
+        let uid = req.params.userId;
+        // let byUser = req.query.byUser;
 
         try {
-            const chats = await chatService.getChats(sid, byUser);
+            const chats = await chatService.getChats(sid);
             if (chats) {
                 console.log('chats: ', chats);
                 const chatData = chats.map((chat) => ({
