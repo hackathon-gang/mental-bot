@@ -6,13 +6,13 @@ import express from 'express';
 
 const router = express.Router();
 
-router.post('/api/user/:userId/:sessionId/chat', chatController.processSaveChat);
-router.post('/api/user/:userId/:sessionId/chat/ai', chatController.processChat);
-router.get('/api/user/:userId/sessions', sessionController.processGetSessions)
-router.get('/api/user/:userId/:sessionId/chats', chatController.processGetChats);
-router.post('/api/user/:userId/sessions', sessionController.processSaveSession);
-router.get('/api/user/:userId', userController.getUserData);
+router.post('/api/user/:sessionId/chat', validateUser.validateToken, chatController.processSaveChat);
+router.post('/api/user/:sessionId/chat/ai', validateUser.validateToken, chatController.processChat);
+router.post('/api/user/sessions', validateUser.validateToken, sessionController.processSaveSession);
 router.post('/api/user', userController.processPostNewUser);
 
+router.get('/api/user', validateUser.validateToken, userController.getUserData);
+router.get('/api/user/sessions', validateUser.validateToken, sessionController.processGetSessions)
+router.get('/api/user/:sessionId/chats', validateUser.validateToken, chatController.processGetChats);
 
 export default router;

@@ -1,0 +1,271 @@
+.body {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-div {
+    display: flex;
+    flex: 0.7;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(250, 247, 255);
+}
+
+.top-nav {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.logo-div {
+    width: 80%;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.icon-div {
+    width: 60%;
+}
+
+.bottom-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 1;
+    width: 100%;
+}
+
+.profile-div {
+    width: 80%;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.session-div {
+    display: flex;
+    flex: 3;
+    background-color: rgb(236, 225, 255);
+    flex-direction: column;
+}
+
+.session-top-div {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.session-list-div {
+    display: flex;
+    flex-direction: column;
+    flex: 3;
+    overflow-y: scroll;
+    padding: 0 5px;
+}
+
+.session-list {
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 12px;
+    margin: 4px 1px;
+    font-size: 14px;
+}
+
+.session-list>i,
+.session-list>label {
+    cursor: pointer;
+}
+
+.session-list:hover {
+    background-color: rgba(136, 125, 155, 0.1);
+}
+
+.chat-div {
+    display: flex;
+    flex: 9;
+    background-color: rgb(225, 208, 252);
+    flex-direction: column;
+}
+
+.chat-text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    overflow-y: scroll;
+    padding-bottom: 160px;
+}
+
+.chat-text>label {
+    margin: 20px;
+}
+
+/* chat bubble taken from https://codepen.io/t_afif/pen/eYMbrJN */
+.chat-bubble {
+    --r: 15px;
+    /* the radius */
+    --t: 10px;
+    /* the size of the tail */
+
+    max-width: 700px;
+    padding: calc(2*var(--r)/3);
+    -webkit-mask:
+        radial-gradient(var(--t) at var(--_d) 0, #0000 98%, #000 102%) var(--_d) 100%/calc(100% - var(--r)) var(--t) no-repeat,
+        conic-gradient(at var(--r) var(--r), #000 75%, #0000 0) calc(var(--r)/-2) calc(var(--r)/-2) padding-box,
+        radial-gradient(50% 50%, #000 98%, #0000 101%) 0 0/var(--r) var(--r) space padding-box;
+    background: linear-gradient(135deg, #A9C8E8, #B07ABE, #F6B0D9) border-box;
+    color: #fff;
+    margin-top: 30px;
+}
+
+.left {
+    --_d: 0%;
+    border-left: var(--t) solid #0000;
+    margin-right: var(--t);
+    place-self: start;
+    margin-left: 15px;
+}
+
+.right {
+    --_d: 100%;
+    border-right: var(--t) solid #0000;
+    margin-left: var(--t);
+    place-self: end;
+    margin-right: 15px;
+}
+
+.chat-send {
+    position: fixed;
+    bottom: 15px;
+    width: 700px;
+    height: 50px;
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px 0px rgba(0, 0, 0, 0.4);
+}
+
+.chat-input {
+    position: absolute;
+    width: 94%;
+    height: 50px;
+    padding: 12.5px 15px;
+    border-radius: 15px;
+    outline: none;
+    resize: none;
+    bottom: 0;
+}
+
+.chat-icon {
+    position: absolute;
+    right: 22px;
+    bottom: 15.5px;
+    cursor: pointer;
+    color: rgba(0, 0, 0, 0.2);
+}
+
+.chat-count {
+    position: absolute;
+    bottom: 5px;
+    font-size: 12px;
+    right: 50px;
+    visibility: hidden;
+    color: grey;
+}
+
+/* dot flashing taken from https://codepen.io/nzbin/pen/GGrXbp */
+.dot-flashing {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    left: 25px;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #fff;
+    animation: dot-flashing 1s infinite linear alternate;
+    animation-delay: 0.5s;
+    margin: 7px 0;
+}
+
+.dot-flashing::before,
+.dot-flashing::after {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    top: 0;
+}
+
+.dot-flashing::before {
+    left: -15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #fff;
+    animation: dot-flashing 1s infinite alternate;
+    animation-delay: 0s;
+}
+
+.dot-flashing::after {
+    left: 15px;
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #fff;
+    animation: dot-flashing 1s infinite alternate;
+    animation-delay: 1s;
+}
+
+@keyframes dot-flashing {
+    0% {
+        background-color: #fff;
+    }
+
+    50%,
+    100% {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.dot {
+    display: inline-block;
+    animation: bounce 1s infinite;
+    animation-delay: 1s;
+    opacity: 1;
+    letter-spacing: 2px;
+    text-align: center;
+    font-size: 30px;
+}
+
+.dot:nth-of-type(2) {
+    animation: bounce 1s infinite;
+    animation-delay: 1.2s;
+}
+
+.dot:nth-of-type(3) {
+    animation: bounce 1s infinite;
+    animation-delay: 1.4s;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}

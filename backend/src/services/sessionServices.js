@@ -10,7 +10,7 @@ const sessionService = {
             if (dateTime && dateTime != '') {
                 query += ` AND start_time RLIKE ?`
             }
-            query += ` ORDER BY end_time DESC`;
+            query += ` ORDER BY start_time DESC`;
             console.log('query: ', query);
             const results = await pool.query(query, [userId, dateTime]);
             console.log(results[0]);
@@ -25,7 +25,7 @@ const sessionService = {
         console.log('userId: ', userId);
         try {
             const query = `
-            INSERT INTO m_session (uid, end_time) VALUES (?,NULL);
+            INSERT INTO m_session (uid, end_time) VALUES (?, DATE_ADD(NOW(), INTERVAL 3 HOUR));
             `;
             const results = await pool.query(query, [userId]);
             console.log(results[0]);

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import Image from 'react-bootstrap/Image';
 import axios from 'axios';
-import '../../css/Loadingtext.css';
+import '../../css/chatscreenstyle.css';
 
 // import {
 //     Route,
@@ -29,7 +29,7 @@ const App = () => {
     const [sessionId, setSessionId] = useState();
     const [messageId, setMessageId] = useState();
     const [userId, setUserId] = useState(localStorage.getItem('uid'));
-    const [userImage, setUserImage] = useState("../../Images/TestingLogo.png");
+    const [userImage, setUserImage] = useState("../../images/TestingLogo.png");
 
     const [sessionDateTime, setSessionDateTime] = useState('');
 
@@ -466,7 +466,7 @@ const App = () => {
                             <div className='col-lg-2' style={smallestColumn}>
                                 <div style={buttonWrapperStyle}>
                                     <Button variant="primary" style={LogobuttonStyle}>
-                                        <Image src={require("../../Images/TestingLogo.png")} fluid />
+                                        <Image src={require("../../images/TestingLogo.png")} fluid />
                                     </Button>
                                 </div>
 
