@@ -10,7 +10,8 @@ const config = {
     host: process.env.DB_HOST,
     database: process.env.DB_DATABASE,
     connectionLimit: process.env.DB_CONNECTION_LIMIT,
-    chatgptapikey: process.env.CHATGPT_API_KEY
+    chatgptapikey: process.env.CHATGPT_API_KEY,
+    JWTkey: process.env.JWT_KEY
 };
 
 export default config;

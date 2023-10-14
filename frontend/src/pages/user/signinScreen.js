@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { googleLogout, useGoogleLogin, GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 import '../../index.css';
 import axios from 'axios';
 
 export default function SigninScreen(props) {
+
+    const navigate = useNavigate();
+
     const [user, setUser] = useState([]);
     const login = useGoogleLogin({
         onSuccess: (codeResponse) => setUser(codeResponse),
         onError: (error) => console.log('Login Failed:', error)
     });
+
+    useEffect(() => {
+        let token = localStorage.getItem('token');
+        if (token) {
+            navigate('/chat');
+        }
+    }, []);
+
     useEffect(
         () => {
             if (user) {
@@ -24,15 +36,12 @@ export default function SigninScreen(props) {
                         axios.post(`${process.env.REACT_APP_SERVER_BASE_URL}/api/user`, { ...res.data, method: "google" })
                             .then((response) => {
                                 console.log(response);
-                                window.location.pathname = '/chat';
+                                localStorage.setItem('token', response.data.token);
+                                navigate('/chat');
                             })
                             .catch((error) => {
                                 console.log(error);
-                                let message = error.response.data.message.split('|');
-                                if(message[0] == "User exists") {
-                                    localStorage.setItem("uid", message[1]);
-                                    window.location.pathname = '/chat';
-                                }
+                                alert('Sign In failed!');
                             });
 
                     })
@@ -49,7 +58,7 @@ export default function SigninScreen(props) {
                     <div class="rounded-xl bg-white shadow-xl">
                         <div class="p-6 sm:p-16">
                             <div class="space-y-4">
-                                <img src={require("../../Images/TestingLogo.png")} loading="lazy" class="w-10" alt="Logo" />
+                                <img src={require("../../images/TestingLogo.png")} loading="lazy" class="w-10" alt="Logo" />
                                 <h2 class="mb-8 text-2xl text-cyan-900 font-bold">Sign in to start using <br /> Mooodify!</h2>
                             </div>
                             <div class="mt-16 grid space-y-3">
