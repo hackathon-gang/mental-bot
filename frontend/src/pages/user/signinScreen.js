@@ -58,7 +58,7 @@ export default function SigninScreen(props) {
                     <div class="rounded-xl bg-white shadow-xl">
                         <div class="p-6 sm:p-16">
                             <div class="space-y-4">
-                                <img src={require("../../images/TestingLogo.png")} loading="lazy" class="w-10" alt="Logo" />
+                                <img src={require("../../Images/TestingLogo.png")} loading="lazy" class="w-10" alt="Logo" />
                                 <h2 class="mb-8 text-2xl text-cyan-900 font-bold">Sign in to start using <br /> Mooodify!</h2>
                             </div>
                             <div class="mt-16 grid space-y-3">

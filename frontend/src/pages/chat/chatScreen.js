@@ -122,7 +122,7 @@ export default function ChatScreen(props) {
                 <div className='top-nav'>
                     <div className='logo-div'>
                         <Button style={logoButtonStyle}>
-                            <Image src={require("../../images/TestingLogo.png")} fluid />
+                            <Image src={require("../../Images/TestingLogo.png")} fluid />
                         </Button>
                     </div>
                     <div className='icon-div'>
