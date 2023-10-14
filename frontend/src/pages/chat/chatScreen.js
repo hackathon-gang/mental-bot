@@ -211,7 +211,7 @@ export default function ChatScreen(props) {
                     {
                         (isSessionEnd && isSelected >= 0) ?
                             (
-                                <label>Session ends at {sessionFunc.formatSessionDate(session[isSelected].endTime)}</label>
+                                <label>Session ended at {sessionFunc.formatSessionDate(session[isSelected].endTime)}</label>
                             )
                             : ""
                     }
