@@ -15,6 +15,7 @@ const chatController = {
                 return res.status(200).json({
                     statusCode: 200,
                     ok: true,
+                    data: saveChatResult,
                     message: 'Create chat successful',
                 });
             } else {
@@ -33,9 +34,8 @@ const chatController = {
 
     processChat: async (req, res, next) => {
         let chatText = req.body.chatText;
-        let uid = req.params.userId;
         let sid = req.params.sessionId;
-        let messageId = req.params.sessionId;
+        let messageId = req.body.messageId;
 
         try {
             // const messageId = await chatService.saveChat(sid, chatText, 1);
@@ -76,7 +76,7 @@ const chatController = {
 
     processGetChats: async (req, res, next) => {
         let sid = req.params.sessionId;
-        let uid = req.params.userId;
+        let uid = req.body.userId;
 
         try {
             const chats = await chatService.getChats(sid, uid);

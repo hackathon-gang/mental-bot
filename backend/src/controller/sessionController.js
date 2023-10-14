@@ -3,7 +3,7 @@ import sessionService from "../services/sessionServices.js"
 const sessionController = {
 
     processGetSessions: async (req, res, next) => {
-        let uid = req.params.userId;
+        let uid = req.body.userId;
         let dateTime = req.query.dateTime
 
         try {
